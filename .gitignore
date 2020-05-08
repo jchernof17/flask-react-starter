@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 /virtualenv
+/api/virtualenv
 package-lock.json
 
 # testing
