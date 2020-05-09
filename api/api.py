@@ -1,5 +1,6 @@
 from flask import Flask, redirect, request, url_for, jsonify, json
 from flask_sqlalchemy import SQLAlchemy
+from passlib.hash import sha256_crypt
 from datetime import datetime
 # import requests
 import sys
@@ -60,11 +61,11 @@ def login():
     body = request.get_json()
     # look up a user with that email and password
     email, password = body['email'], body['password']
-    user = User.query.filter_by(email=email, password=password).first()
-
+    user = User.query.filter_by(email=email).first()
     # if no user found, send an error response
-    if not user:
+    if (not user or not sha256_crypt.verify(password, user.password)):
         raise InvalidLogin('No user found', 401)
+
     # if user found, format their user dict and send back
     else:
         user_dict = {'id': user.id, 'email': user.email, 'role': user.role, 'purpose': user.purpose, 'token': user.token, 'name': user.name}
@@ -79,7 +80,7 @@ def register():
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         raise InvalidRegister('User with that email already exists', 403)
-    password = body['password']
+    password = sha256_crypt.hash(body['password'])
     name = body['name']
     role = body.get('role', 1)
     purpose = body['purpose']
