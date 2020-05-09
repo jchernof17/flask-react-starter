@@ -20,9 +20,7 @@ export const Login = () => {
     }, [email, password]);
 
     const handleLogin = async () => {
-        let body = {email, password}
-        if (email !== '' || password !== 'password') {
-          setError(false);
+        let body = {email, password};
           const response = await fetch('/login', {
             method: 'POST',
             headers: {
@@ -36,14 +34,15 @@ export const Login = () => {
             let returned_user = res_body.user;
             setPassword('');
             setEmail('');
+            setHelperText('');
+            setError(false);
             localStorage.setItem('User', JSON.stringify(returned_user));
             setUser(JSON.parse(localStorage.getItem("User")));
-        } else if (response.status === 401) {
+        } else {
           setError(true);
           setHelperText('Incorrect email or password');
           setUser(false);
           localStorage.setItem('User', false);
-        }
         }
       };
       const handleKeyPress = (e) => {
