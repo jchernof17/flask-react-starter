@@ -32,13 +32,13 @@ export const Register = () => {
         });
         if (response.status === 200) {
             let res_body = await response.json()
-            let returned_user = res_body.user;
+            let returned_user = res_body.access_token;
             setPassword('');
             setEmail('');
             setName('');
             setPurpose('');
-            localStorage.setItem('User', JSON.stringify(returned_user));
-            setUser(JSON.parse(localStorage.getItem("User")));
+            localStorage.setItem('User', returned_user);
+            setUser(localStorage.getItem("User"));
         }
          else {
           setError(true);

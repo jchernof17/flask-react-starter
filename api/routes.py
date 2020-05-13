@@ -1,9 +1,11 @@
 from api import app, db
-from flask import request, json, jsonify
+from flask import request, jsonify
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from api.models import User
 from passlib.hash import sha256_crypt
 from api.exceptions import InvalidLogin, InvalidRegister, AccessDenied
 import secrets
+
 
 @app.route("/login", methods=['POST'])
 def login():
@@ -17,9 +19,11 @@ def login():
 
     # if user found, format their user dict and send back
     else:
-        user_dict = {'id': user.id, 'email': user.email, 'purpose': user.purpose, 'token': user.token, 'name': user.name}
-        response = {'user': user_dict}
-        return response
+        user_dict = {'id': user.id, 'email': user.email, 'purpose': user.purpose, 'name': user.name}
+        # response = {'user': user_dict}
+        access_token = create_access_token(identity=user_dict)
+        return jsonify(access_token=access_token), 200
+
 
 @app.route("/register", methods=['POST'])
 def register():
@@ -37,16 +41,16 @@ def register():
     user = User(name=name, role=role, purpose=purpose, password=password, email=email, token=token)
     db.session.add(user)
     db.session.commit()
-    id = user.id
-    user_dict = {'id': user.id, 'email': user.email, 'purpose': user.purpose, 'token': token, 'name': name}
-    response = app.response_class(
-        response=json.dumps({"user": user_dict}),
-        mimetype='application/json'
-    )
-    return response
 
-@app.route("/access", methods=['GET'])
-def access():
+    user_dict = {'id': user.id, 'email': user.email, 'purpose': user.purpose, 'name': name}
+    access_token = create_access_token(identity=user_dict)
+    return jsonify(access_token=access_token), 200
+
+
+@app.route("/me", methods=['GET'])
+@jwt_required
+def me():
+    """
     body = request.get_json()
     token = body['token']
     access_level = body['access_level']
@@ -58,3 +62,8 @@ def access():
         mimetype='application/json'
     )
     return response
+    """
+    current_user = get_jwt_identity()
+    if not current_user:
+        raise AccessDenied('No user is logged in', 403)
+    return jsonify(user=current_user), 200

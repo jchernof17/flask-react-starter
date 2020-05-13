@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { Menu } from 'semantic-ui-react';
 import { UserContext } from '../UserContext';
@@ -8,20 +8,27 @@ export const Navbar = () => {
     const [activeItem, setActiveItem] = useState('');
     const {user} = useContext(UserContext);
     let links = ['about', 'clubs', 'events', 'other']
+  
+
     const handleClick = (value) => {
         setActiveItem(value);
         return (
-        <Redirect to={value}/>
+        <Redirect to={"/"+value}/>
         )
     }
-    const generated_links = links.map(link => (
-      <Link to={{pathname: "/".concat(link)}}>
+    const create_link = (text, i=0) => {
+      return (
+        <Link key={text} to={{pathname: "/".concat(text)}}>
         <Menu.Item
-          name={link}
-          active={activeItem === link}
-          onClick={e => handleClick(link)}
+          name={text}
+          active={activeItem === text}
+          //onClick={e => handleClick(text)}
         />
         </Link>
+      )
+    }
+    const generated_links = links.map((link) => (
+      create_link(link)
     ));
     return (
       <Menu style={{margin:0, borderTop:0}}>
@@ -30,29 +37,11 @@ export const Navbar = () => {
         </Link>
       {generated_links}
         {user ? 
-        <Link to={{pathname: "/logout"}}>
-          <Menu.Item
-            name='logout'
-            active={activeItem === 'logout'}
-            onClick={e => handleClick('logout')}
-          />
-          </Link>
+        create_link('logout')
           :
           <React.Fragment>
-          <Link to={{pathname: "/login"}}>
-          <Menu.Item
-            name='login'
-            active={activeItem === 'login'}
-            onClick={e => handleClick('login')}
-          />
-          </Link>
-          <Link to={{pathname: "/register"}}>
-          <Menu.Item
-            name='register'
-            active={activeItem === 'register'}
-            onClick={e => handleClick('register')}
-          />
-          </Link>
+          {create_link('login')}
+          {create_link('register')}
           </React.Fragment>
         }
       </Menu>

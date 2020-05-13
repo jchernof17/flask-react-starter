@@ -28,16 +28,22 @@ export const Login = () => {
             },
             body: JSON.stringify(body)
         });
-        console.log(response);
         if (response.status === 200) {
             let res_body = await response.json();
-            let returned_user = res_body.user;
+            let returned_user = res_body.access_token;
             setPassword('');
             setEmail('');
             setHelperText('');
             setError(false);
-            localStorage.setItem('User', JSON.stringify(returned_user));
-            setUser(JSON.parse(localStorage.getItem("User")));
+            localStorage.setItem('User', returned_user);
+            setUser(localStorage.getItem("User"));
+            let header = {Authorization: 'Bearer ' + returned_user};
+            const test_access = await fetch('/me', {
+              method: 'GET',
+              headers: header,
+            });
+            let ret_user_body = await test_access.json()
+            console.log(ret_user_body.user);
         } else {
           setError(true);
           setHelperText('Incorrect email or password');
@@ -71,7 +77,7 @@ export const Login = () => {
             <Input fluid icon='user' iconPosition='left' placeholder="Your email" value={email} onChange= {e => setEmail(e.target.value)} onKeyPress={e => handleKeyPress(e)}/>
             </Form.Field>
             <Form.Field>
-            <Input fluid icon='lock' iconPosition='left' placeholder="Your password" type='password' autocomplete="current-password" value={password} onChange= {e => setPassword(e.target.value)} onKeyPress={e => handleKeyPress(e)}/>
+            <Input fluid icon='lock' iconPosition='left' placeholder="Your password" type='password' autoComplete="current-password" value={password} onChange= {e => setPassword(e.target.value)} onKeyPress={e => handleKeyPress(e)}/>
             </Form.Field>
             <FormField>
                 <Button fluid color='teal' size='large' onClick={

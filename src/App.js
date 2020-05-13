@@ -19,7 +19,7 @@ function App() {
     if (typeof localStorage.getItem("User") ==='undefined') {
       localStorage.setItem("User", false);
     }
-    setUser(JSON.parse(localStorage.getItem("User")) || false);
+    setUser(localStorage.getItem("User") || false);
   }, []);
   return (
     <Router>
